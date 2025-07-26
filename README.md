@@ -1,31 +1,18 @@
 # SalesSync
 
-<p align="center">
-  <img src="doc/images/db_diagram.png" alt="DB Diagram" width="200"/>
-  
-  <img src="doc/images/sales_sync-UML.png" alt="UML Diagram" width="200"/>
-</p>
-
 ## Sobre o Projeto
 
 **Projeto Integrador - Senac ETAPA 6 (Refatoração)**. 
 
 O SalesSync é um sistema de gestão de vendas e serviços desenvolvido para pequenos negócios. O sistema permite o controle de vendas, ordens de serviço, despesas e clientes, oferecendo uma solução completa para a gestão financeira e operacional do negócio.
 
-## Funcionalidades
+Nesta etapa, foi realizada uma refatoração afetando as regras de negócio do projeto eliminando code smells encontrados, aplicando Princípios SOLID, Padrões de Projeto e posteriores testes unitários.
 
-- **Gestão de Vendas**: Registro e acompanhamento de vendas, com suporte a diferentes métodos de pagamento
-- **Ordens de Serviço**: Criação e gerenciamento de ordens de serviço com acompanhamento de status
-- **Gestão de Clientes**: Cadastro completo de clientes com histórico de compras e serviços
-- **Controle de Despesas**: Registro e categorização de despesas, com suporte a recorrências
-- **Relatórios Financeiros**: Balanços diários, mensais e anuais para análise financeira
-- **Controle de Acesso**: Diferentes níveis de acesso para administradores, proprietários e funcionários
-- **Logs de Sistema**: Registro completo de atividades para auditoria e segurança
+Projeto original: https://github.com/DJFCoder/sales-sync-GUI
 
 ## Tecnologias Utilizadas
 
 - **Backend**: Java 17 com JPA/Hibernate 6.2
-- **Frontend**: Swing com FlatLaf 3.1 (Look and Feel moderno)
 - **Banco de Dados**: MySQL 8.0
 - **Segurança**: BCrypt para hash de senhas
 - **Ferramentas**: Maven para gerenciamento de dependências
@@ -34,8 +21,6 @@ O SalesSync é um sistema de gestão de vendas e serviços desenvolvido para peq
 
 - Java 17 ou superior
 - MySQL 8.0 ou superior
-- Mínimo de 4GB de RAM
-- 100MB de espaço em disco para a aplicação
 
 ## Instalação
 
@@ -49,8 +34,8 @@ O SalesSync é um sistema de gestão de vendas e serviços desenvolvido para peq
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/sales-sync.git
-cd sales-sync
+git clone https://github.com/DJFCoder/salessync-refatoracao
+cd salessync-refatoracao
 ```
 
 2. Configure o banco de dados:
@@ -97,7 +82,6 @@ sales-sync/
 │   │   │   
 │   │   └── resources/
 │   │       ├── db/            # Scripts SQL
-│   │       ├── images/        # Imagens e ícones
 │   │       └── META-INF/      # Configuração JPA
 │   │ 
 │   └── test/                  # Testes unitários e de integração
@@ -111,24 +95,6 @@ sales-sync/
 
 - Usuário : admin
 - Senha : @devjf123admin
-
-### Principais Telas
-
-1. Dashboard : Visão geral do negócio com indicadores principais
-2. Vendas : Registro e consulta de vendas
-3. Ordens de Serviço : Gerenciamento de serviços
-4. Clientes : Cadastro e histórico de clientes
-5. Despesas : Controle de gastos
-6. Relatórios : Análises financeiras e operacionais
-7. Configurações : Ajustes do sistema e usuários
-
-## Relatórios Disponíveis
-
-- Balanço diário
-- Balanço mensal
-- Balanço anual
-- Ordens de serviço por status
-- Análise de lucro
 
 ## Desenvolvimento
 
