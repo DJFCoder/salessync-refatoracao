@@ -9,7 +9,6 @@ import br.com.devjf.salessync.dao.SaleDAO;
 import br.com.devjf.salessync.model.PaymentMethod;
 import br.com.devjf.salessync.model.Sale;
 import br.com.devjf.salessync.model.User;
-import br.com.devjf.salessync.model.UserType;
 
 public class SaleService {
 
@@ -85,7 +84,7 @@ public class SaleService {
 
         if (filters.containsKey("customerId")) {
             Integer customerId = (Integer) filters.get("customerId");
-            return saleDAO.findByCustomer(saleDAO.findById(customerId).getCustomer());
+            return saleDAO.findByCustomerId(customerId);
         } else if (filters.containsKey("startDate") && filters.containsKey("endDate")) {
             LocalDateTime startDate = (LocalDateTime) filters.get("startDate");
             LocalDateTime endDate = (LocalDateTime) filters.get("endDate");
@@ -167,8 +166,7 @@ public class SaleService {
                 && sale.getCustomer() != null
                 && sale.getItems() != null
                 && !sale.getItems().isEmpty()
-                && sale.getItems().stream().allMatch(item ->
-                item.getQuantity() > 0 && item.getUnitPrice() > 0);
+                && sale.getItems().stream().allMatch(item -> item.getQuantity() > 0 && item.getUnitPrice() > 0);
     }
 
     /**
