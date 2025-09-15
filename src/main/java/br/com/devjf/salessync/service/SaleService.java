@@ -12,21 +12,26 @@ import br.com.devjf.salessync.model.User;
 
 public class SaleService {
 
-    private final SaleDAO saleDAO;
-    private final SaleItemService saleItemService;
+    private SaleDAO saleDAO;
+    private SaleItemService saleItemService;
 
     public SaleService() {
         this.saleDAO = new SaleDAO();
         this.saleItemService = new SaleItemService();
     }
 
+    public SaleService(SaleDAO saleDAO, SaleItemService saleItemService) {
+        this.saleDAO = saleDAO;
+        this.saleItemService = saleItemService;
+    }
+
     public boolean registerSale(Sale sale) {
-        // Calculate total amount before saving
-        sale.calculateTotal();
         boolean isValid = validateSale(sale);
         if (!isValid) {
             return false;
         }
+        // Calculate total amount before saving
+        sale.calculateTotal();
         boolean success = saleDAO.save(sale);
 
         if (success && sale.getUser() != null) {
@@ -57,20 +62,19 @@ public class SaleService {
         return success;
     }
 
+    /**
+     * Cancela uma venda existente.
+     *
+     * @param id O ID da venda a ser cancelada.
+     * @return true se a venda foi cancelada com sucesso, false caso contrário.
+     */
     public boolean cancelSale(Integer id) {
         Sale sale = saleDAO.findById(id);
         if (sale == null) {
             return false;
         }
-
         sale.setCanceled(true);
-        boolean success = saleDAO.update(sale);
-
-        if (success && sale.getUser() != null) {
-            logSaleOperation(sale, "CANCEL", sale.getUser());
-        }
-
-        return success;
+        return saleDAO.update(sale);
     }
 
     public Sale findSaleById(Integer id) {

@@ -24,7 +24,7 @@ public class Sale {
     private Double totalAmount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method_id", nullable = false)
+    @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod;
 
     @Column(name = "payment_date")

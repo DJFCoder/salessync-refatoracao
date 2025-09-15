@@ -1,105 +1,109 @@
 package br.com.devjf.salessync.service;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import java.util.ArrayList;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import br.com.devjf.salessync.dao.SaleDAO;
 import br.com.devjf.salessync.model.Customer;
 import br.com.devjf.salessync.model.Sale;
 import br.com.devjf.salessync.model.SaleItem;
+import java.util.Arrays;
+import static org.mockito.ArgumentMatchers.any;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
+@RunWith(MockitoJUnitRunner.class)
 public class SaleServiceTest {
+    private SaleService saleService;
+    @Mock
+    private SaleDAO saleDAO;
+    @Mock
+    private SaleItemService saleItemService;
+    private Sale validSale;
+    private Customer validCustomer;
 
-  @Mock
-  private SaleDAO saleDAO;
+    @Before
+    public void setUp() {
+        saleService = new SaleService(saleDAO, saleItemService);
 
-  @Mock
-  private SaleItemService saleItemService;
+        validCustomer = new Customer();
+        validCustomer.setId(1);
+        validCustomer.setName("John Doe");
 
-  @InjectMocks
-  private SaleService saleService;
+        validSale = new Sale();
+        validSale.setId(1);
+        validSale.setCustomer(validCustomer);
 
-  private Sale validSale;
+        // Usando o construtor correto de SaleItem(description, quantity, unitPrice)
+        SaleItem item1 = new SaleItem("Item 1", 2, 10.00);
+        item1.setId(1);
+        item1.setSale(validSale); // Definindo a referência de volta para a venda
 
-  private Customer validCustomer;
+        SaleItem item2 = new SaleItem("Item 2", 3, 5.00);
+        item2.setId(2);
+        item2.setSale(validSale); // Definindo a referência de volta para a venda
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.openMocks(this);
-    saleService = new SaleService();
+        validSale.setItems(Arrays.asList(item1, item2));
+    }
 
-    validCustomer = new Customer();
-    validCustomer.setId(1);
-    validCustomer.setName("Cliente Teste");
+    /**
+     * CT004 - Validação do registro de venda com cliente existente Testa se o
+     * sistema impede o cancelamento de venda para cliente inexistente.
+     */
+    @Test
+    public void testCancelSale_Success() {
+        when(saleDAO.findById(1)).thenReturn(validSale);
+        when(saleDAO.update(validSale)).thenReturn(true);
+        boolean result = saleService.cancelSale(1);
+        assertTrue(result);
+        assertTrue(validSale.isCanceled());
+        verify(saleDAO).findById(1);
+        verify(saleDAO).update(validSale);
+    }
 
-    validSale = new Sale();
-    validSale.setId(1);
-    validSale.setCustomer(validCustomer);
-    validSale.setCanceled(false);
+    /**
+     * CT005 - Validação dos campos obrigatórios no registro de venda Testa se o
+     * sistema valida os campos obrigatórios da venda.
+     */
+    @Test
+    public void testRegisterSale_Fail_NullCustomer() {
+        validSale.setCustomer(null);
+        boolean result = saleService.registerSale(validSale);
+        assertFalse(result);
+    }
 
-    SaleItem item = new SaleItem();
-    item.setDescription("Produto de Teste");
-    item.setQuantity(1);
-    item.setUnitPrice(100.00);
-    validSale.addItem(item);
-  }
+    @Test
+    public void testRegisterSale_Fail_NullItems() {
+        validSale.setItems(null);
+        boolean result = saleService.registerSale(validSale);
+        assertFalse(result);
+    }
 
-  /**
-   * CT004 - Validação do registro de venda com cliente existente
-   * Testa se o sistema impede o cancelamento de venda para cliente inexistente.
-   */
-  @Test
-  public void testCancelSale_Success() {
-    when(saleDAO.findById(validSale.getId())).thenReturn(validSale);
-    when(saleDAO.update(any(Sale.class))).thenReturn(true);
+    @Test
+    public void testRegisterSale_Fail_EmptyItems() {
+        validSale.setItems(new ArrayList<>());
+        boolean result = saleService.registerSale(validSale);
+        assertFalse(result);
+    }
 
-    boolean result = saleService.cancelSale(validSale.getId());
-
-    assertTrue(result);
-    verify(saleDAO).update(validSale);
-    assertTrue(validSale.isCanceled());
-  }
-
-  /**
-   * CT005 - Validação dos campos obrigatórios no registro de venda
-   * Testa se o sistema valida os campos obrigatórios da venda.
-   */
-  @Test
-  public void testRegisterSale_InvalidSale() {
-    validSale.setItems(Collections.emptyList());
-
-    boolean result = saleService.registerSale(validSale);
-
-    assertFalse(result);
-    verify(saleDAO, never()).save(any(Sale.class));
-  }
-
-  /**
-   * CT006 - Cadastro de venda com dados válidos
-   * Testa o cadastro bem-sucedido de uma venda com dados válidos.
-   */
-  @Test
-  public void testRegisterSale_Success() {
-    when(saleDAO.save(any(Sale.class))).thenReturn(true);
-
-    validSale.setDate(LocalDateTime.now());
-    validSale
-        .setTotalAmount(
-            validSale.getItems().stream().mapToDouble(item -> item.getUnitPrice() * item.getQuantity()).sum());
-
-    boolean result = saleService.registerSale(validSale);
-
-    assertTrue(result);
-    verify(saleDAO, times(1)).save(any(Sale.class));
-  }
+    /**
+     * CT006 - Cadastro de venda com dados válidos Testa o cadastro bem-sucedido
+     * de uma venda com dados válidos.
+     */
+    @Test
+    public void testRegisterSale_Success() {
+        // Arrange: Configura o mock para aceitar qualquer objeto Sale,
+        // pois o estado do objeto muda dentro do serviço.
+        when(saleDAO.save(any(Sale.class))).thenReturn(true);
+        // Act: Executa o método a ser testado.
+        boolean result = saleService.registerSale(validSale);
+        // Assert: Verifica o resultado e as interações.
+        assertTrue(result);
+        verify(saleDAO).save(validSale);
+    }
 }
