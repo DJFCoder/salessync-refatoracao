@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -24,7 +23,6 @@ public class ExpenseServiceTest {
   @Mock
   private ExpenseCategoryDAO categoryDAO;
 
-  @InjectMocks
   private ExpenseService expenseService;
 
   private Expense validExpense;
@@ -32,12 +30,17 @@ public class ExpenseServiceTest {
   @Before
   public void setUp() {
     MockitoAnnotations.openMocks(this);
+    expenseService = new ExpenseService(expenseDAO, categoryDAO); // Injeção manual
+
+    ExpenseCategory validCategory = new ExpenseCategory();
+    validCategory.setId(1); // Categoria precisa de um ID para ser válida
+
     validExpense = new Expense();
     validExpense.setId(1);
     validExpense.setDescription("Despesa de teste");
     validExpense.setAmount(100.0);
     validExpense.setDate(LocalDate.now());
-    validExpense.setCategory(new ExpenseCategory());
+    validExpense.setCategory(validCategory); // Usando a categoria válida
   }
 
   /**
